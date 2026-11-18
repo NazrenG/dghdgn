@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { useMsal } from "@azure/msal-react";
-import { loginRequest } from "../auth/msalConfig";
+import { apiScope, loginRequest, tenant } from "../auth/msalConfig";
+import { getLoginError, setLoginError } from "../auth/loginError";
 import { MicrosoftLogo } from "./MicrosoftLogo";
 
 export function LoginPage() {
   const { instance } = useMsal();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(getLoginError);
 
   const signIn = async () => {
     setError(null);
+    setLoginError(null);
     try {
       await instance.loginRedirect(loginRequest);
     } catch (err) {
@@ -25,7 +27,16 @@ export function LoginPage() {
           <MicrosoftLogo />
           <span>Sign in with Microsoft</span>
         </button>
-        {error && <p className="error-text">{error}</p>}
+        {error && (
+          <div className="login-error">
+            <p className="error-text">{error}</p>
+            <p className="fine-print">
+              Requested scope: <code>{apiScope}</code>
+              <br />
+              Tenant: <code>{tenant}</code>
+            </p>
+          </div>
+        )}
         <p className="fine-print">Access is limited to approved email addresses.</p>
       </div>
     </div>

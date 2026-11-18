@@ -10,8 +10,24 @@ export const configError: string | null =
 
 export const apiBaseUrl = ((import.meta.env.VITE_API_BASE_URL ?? "").trim() || "http://localhost:5080").replace(/\/+$/, "");
 
-/** Delegated scope exposed by the API ("Expose an API" blade in Entra ID). */
-export const apiScope = (import.meta.env.VITE_API_SCOPE ?? "").trim() || `api://${clientId}/access_as_user`;
+const DEFAULT_SCOPE_NAME = "access_as_user";
+
+/**
+ * Delegated scope exposed by the API ("Expose an API" blade in Entra ID).
+ * A full scope is "<Application ID URI>/<scope name>". If VITE_API_SCOPE contains only the
+ * Application ID URI (e.g. "api://<client-id>"), "/access_as_user" is appended, because a bare
+ * URI makes Entra ID fail with AADSTS500011 ("resource principal named api:/ was not found").
+ */
+function resolveApiScope(): string {
+  const raw = (import.meta.env.VITE_API_SCOPE ?? "").trim().replace(/^["']|["']$/g, "");
+  if (!raw) return `api://${clientId}/${DEFAULT_SCOPE_NAME}`;
+  const uriOnly = /^[a-z][a-z0-9+.-]*:\/\/[^/]+\/?$/i;
+  if (uriOnly.test(raw)) return `${raw.replace(/\/+$/, "")}/${DEFAULT_SCOPE_NAME}`;
+  return raw;
+}
+
+export const apiScope = resolveApiScope();
+export const tenant = tenantId;
 
 export const msalConfig: Configuration = {
   auth: {

@@ -10,6 +10,7 @@ import { MsalProvider } from "@azure/msal-react";
 import App from "./App";
 import { configError, msalConfig } from "./auth/msalConfig";
 import { ConfigErrorScreen } from "./components/ConfigErrorScreen";
+import { setLoginError } from "./auth/loginError";
 import "./styles.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root")!);
@@ -26,6 +27,7 @@ async function bootstrap() {
   // Completes the redirect flow when returning from login.microsoftonline.com.
   const redirectResult = await msalInstance.handleRedirectPromise().catch((err) => {
     console.error("Login redirect failed", err);
+    setLoginError(err instanceof Error ? err.message : String(err));
     return null;
   });
   if (redirectResult?.account) {

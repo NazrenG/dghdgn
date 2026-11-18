@@ -160,3 +160,7 @@ td.actions { display: flex; gap: 6px; justify-content: flex-end; white-space: no
   animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+.login-error { text-align: left; word-break: break-word; }
+.login-error .error-text { font-size: 0.85rem; }
+code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.85em; }
